@@ -1,0 +1,344 @@
+# Clear-Mine
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美軍 AI 聲納掃雷戰術指揮中心 - 荷姆茲海峽封鎖解除行動</title>
+    <style>
+        :root {
+            --bg-deep: #000814;
+            --bg-card: #001d3d;
+            --accent-yellow: #FFD60A;
+            --accent-gold: #FFC300;
+            --text-white: #FFFFFF;
+            --alert-red: #FF4D4D;
+            --scanner-green: rgba(0, 255, 65, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-white);
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 頂部動態新聞走馬燈 */
+        .news-ticker {
+            background: var(--accent-yellow);
+            color: black;
+            padding: 8px 0;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .ticker-wrap {
+            display: inline-block;
+            animation: ticker 25s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* 標題區 */
+        header {
+            margin-top: 60px;
+            padding: 50px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #001d3d, #000814);
+            border-bottom: 2px solid var(--accent-yellow);
+        }
+
+        h1 {
+            color: var(--accent-yellow);
+            font-size: 2.8rem;
+            letter-spacing: 5px;
+            margin: 0;
+            text-shadow: 0 0 20px rgba(255, 214, 10, 0.5);
+        }
+
+        .status-bar {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: var(--text-white);
+        }
+
+        .live-icon {
+            height: 12px;
+            width: 12px;
+            background-color: var(--alert-red);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 核心掃雷流程區 (整合截圖內容) */
+        .workflow-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+
+        .flow-card {
+            background: var(--bg-card);
+            border: 2px solid #003566;
+            padding: 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-card:hover {
+            border-color: var(--accent-yellow);
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(255, 214, 10, 0.2);
+        }
+
+        .flow-card.active {
+            border-color: var(--accent-yellow);
+            background: #003566;
+        }
+
+        .flow-num {
+            font-size: 1.5rem;
+            color: var(--accent-yellow);
+            font-weight: 900;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .flow-card h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.4rem;
+            color: var(--text-white);
+        }
+
+        .flow-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #bdc3c7;
+        }
+
+        .tech-tag {
+            background: var(--accent-yellow);
+            color: black;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 3px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        /* 魚類載具展示區 */
+        .fleet-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .fleet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 5px solid var(--accent-yellow);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .fleet-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+        }
+
+        /* JS 互動面板 */
+        #detail-panel {
+            background: #001529;
+            border: 1px dashed var(--accent-yellow);
+            padding: 30px;
+            margin-top: 30px;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; } to { opacity: 1; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px;
+            color: #555;
+            font-size: 0.9rem;
+            border-top: 1px solid #111;
+        }
+
+        .highlight { color: var(--accent-yellow); font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+<div class="news-ticker">
+    <div class="ticker-wrap">
+        [BREAKING] 寰宇新聞：美軍 Knifefish 成功於荷姆茲海峽識別深埋水雷 ● 官兵實現遠距安全操作，無人化掃雷進入新紀元 ● 國際原油市場高度關注航道淨空進度 ● AI 聲納分析技術排除偽裝目標成功率達 98%
+    </div>
+</div>
+
+<header>
+    <h1>AI-INTEGRATED MCM COMMAND</h1>
+    <div class="status-bar">
+        <span class="live-icon"></span> 系統狀態：<span class="highlight">自動化掃雷流程執行中</span> | 目標區域：荷姆茲海峽
+    </div>
+</header>
+
+<div class="container">
+    
+    <h2 style="color: var(--accent-yellow); border-left: 5px solid var(--accent-yellow); padding-left: 15px; margin-bottom: 30px;">美軍掃雷四大核心流程</h2>
+    
+    <div class="workflow-section">
+        <div class="flow-card" onclick="showTech(1)">
+            <span class="flow-num">01. 偵測 (Detection)</span>
+            <h3>Knifefish 掃描海床</h3>
+            <p>利用低頻寬頻聲納技術，在大面積海域中穿透泥沙，找出疑似水雷目標。</p>
+            <div class="tech-tag">關鍵工具：Knifefish</div>
+        </div>
+
+        <div class="flow-card" onclick="showTech(2)">
+            <span class="flow-num">02. 辨識 (Identification)</span>
+            <h3>AI + 聲納分析</h3>
+            <p>透過自動目標辨識 (ATR)，排除偽裝與海床雜訊，進行目標精確分類。</p>
+            <div class="tech-tag">核心科技：AI 演算法</div>
+        </div>
+
+        <div class="flow-card" onclick="showTech(3)">
+            <span class="flow-num">03. 處置 (Neutralization)</span>
+            <h3>SeaFox 接近目標</h3>
+            <p>派遣一次性滅雷載具，由 AI 輔助引導貼附水雷，精準引爆除雷。</p>
+            <div class="tech-tag">執行工具：SeaFox / Barracuda</div>
+        </div>
+
+        <div class="flow-card" onclick="showTech(4)">
+            <span class="flow-num">04. 安全 (Safety)</span>
+            <h3>無人艇遠端監控</h3>
+            <p>人員在安全範圍之外操作，AI 確保任務如期完成，降低官兵受傷風險。</p>
+            <div class="tech-tag">作戰目標：零傷亡清雷</div>
+        </div>
+    </div>
+
+    <div id="detail-panel">
+        <h3 id="panel-title" style="color:var(--accent-yellow)"></h3>
+        <p id="panel-desc"></p>
+    </div>
+
+    <h2 style="color: var(--accent-yellow); border-left: 5px solid var(--accent-yellow); padding-left: 15px; margin-top: 80px; margin-bottom: 30px;">水下「魚類」部隊技術特徵</h2>
+    
+    <div class="fleet-grid">
+        <div class="fleet-card">
+            <div class="fleet-icon">🐡</div>
+            <div>
+                <h4 style="margin:0; color:var(--accent-yellow)">Knifefish (刀魚)</h4>
+                <p style="font-size:0.9rem; margin:5px 0;">專攻「埋藏雷」。AI 聲納能穿透地表，找出隱藏在泥沙下的伊朗製水雷。</p>
+            </div>
+        </div>
+        <div class="fleet-card">
+            <div class="fleet-icon">🦊</div>
+            <div>
+                <h4 style="margin:0; color:var(--accent-yellow)">SeaFox (海狐)</h4>
+                <p style="font-size:0.9rem; margin:5px 0;">精準「處置者」。搭載高解析光纖影像與爆破彈頭，完成最後一哩路的滅雷。</p>
+            </div>
+        </div>
+        <div class="fleet-card">
+            <div class="fleet-icon">🐟</div>
+            <div>
+                <h4 style="margin:0; color:var(--accent-yellow)">Kingfish (大王魚)</h4>
+                <p style="font-size:0.9rem; margin:5px 0;">廣域「偵蒐者」。負責長效續航掃描，為 AI 提供海量的海床原始數據。</p>
+            </div>
+        </div>
+        <div class="fleet-card">
+            <div class="fleet-icon">🦈</div>
+            <div>
+                <h4 style="margin:0; color:var(--accent-yellow)">Barracuda (梭魚)</h4>
+                <p style="font-size:0.9rem; margin:5px 0;">自主「終結者」。具備無線自主航行能力，在強海流環境中精準定位。</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:80px; background: rgba(255,195,0,0.1); padding: 40px; border-radius: 10px; border: 1px solid var(--accent-yellow);">
+        <h3 style="color: var(--accent-yellow); margin-top:0;">為什麼 AI 聲納是關鍵？</h3>
+        <p>根據 <span class="highlight">寰宇新聞</span> 報導與美軍技術文件：</p>
+        <ul>
+            <li><strong>降低誤判：</strong> AI 透過深度學習，能分辨水雷與岩石，減少不必要的引爆。</li>
+            <li><strong>提高效率：</strong> 以前需要數月的清雷工作，現在 AI 協作無人艇可在數週內完成。</li>
+            <li><strong>絕對安全：</strong> 官兵在數海里外的母艦（如 LCS 瀕海戰鬥艦）操作，完全排除人員觸雷風險。</li>
+        </ul>
+    </div>
+
+</div>
+
+<footer>
+    TACTICAL DATA VISUALIZATION - HORMUZ FREEDOM OF NAVIGATION ACTION © 2026<br>
+    數據整合：軍事 AI 應用研究組 | 參考來源：寰宇新聞台、US Navy NAVSEA
+</footer>
+
+<script>
+    const techData = {
+        1: {
+            title: "偵測階段：Knifefish 深度掃描",
+            desc: "Knifefish 搭載了低頻寬頻 (LFBB) 聲納，這是 AI 運作的核心。它不僅掃描表面，還能『看穿』海床。當偵測到金屬或特定幾何形狀時，AI 會自動標註其座標，產生疑似水雷清單。"
+        },
+        2: {
+            title: "辨識階段：AI 聲納聯手分析",
+            desc: "這是排除誤判的關鍵。AI 演算法會與資料庫中數千種水雷（如伊朗 Maham 系列）的聲學特徵進行比對。它能自動排除海床上的沉船殘骸、石頭或垃圾，確保資源集中在真正的威脅上。"
+        },
+        3: {
+            title: "處置階段：SeaFox 精準引爆",
+            desc: "一旦目標被確認，SeaFox 會由母艦釋放。它具備自主導航與 AI 避障功能，能在複雜的海流中穩定前行，最終以自殺式攻擊或放置裝藥的方式，徹底摧毀目標。"
+        },
+        4: {
+            title: "安全監控：人員在安全範圍內",
+            desc: "透過 AI 遠端鏈路，所有數據即時傳回指揮中心。官兵不再需要身穿重型防爆衣下水，只需在螢幕前監看掃雷進度。這大大提升了士氣與作戰效能。"
+        }
+    };
+
+    function showTech(id) {
+        const panel = document.getElementById('detail-panel');
+        const title = document.getElementById('panel-title');
+        const desc = document.getElementById('panel-desc');
+
+        title.innerText = techData[id].title;
+        desc.innerText = techData[id].desc;
+        panel.style.display = 'block';
+
+        // 捲動到面板
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+</script>
+
+</body>
+</html>
